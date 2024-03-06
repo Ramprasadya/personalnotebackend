@@ -41,8 +41,8 @@ router.post(
         }
      }
      const authToken = jwt.sign(data,JWT_SECRET)
-     console.log(authToken)
-     res.json(user);
+    //  console.log(authToken)
+     res.json({authToken});
   
   }catch(err){
    console.log(err);
@@ -52,6 +52,49 @@ router.post(
 //     res.json({message:"Enter a unique email",err:err.message})
 //   })
    
+  }
+);
+
+// Login endpoint 
+router.post(
+  "/login",
+  [
+    body("email", "Enter a valid email").isEmail(),
+    body("password", "Password can not be blank").exists(),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { email, password } = req.body;
+    try {
+      let user = await User.findOne({ email });
+
+      if (!user) {
+        return res.status(400).json({ message: "Please login with correct credentials" });
+      }
+
+      let comparePassword = await bcrypt.compare(password, user.password);
+
+      if (!comparePassword) {
+        return res.status(400).json({ message: "Please login with correct credentials - " });
+      }
+
+      const data = {
+        user: {
+          id: user.id
+        }
+      };
+
+      const authToken = jwt.sign(data, JWT_SECRET);
+      res.json({ authToken });
+
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({ message: "Internal server Error" });
+    }
   }
 );
 
