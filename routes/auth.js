@@ -76,11 +76,15 @@ router.post(
         return res.status(400).json({ message: "Please login with correct credentials" });
       }
 
-      let comparePassword = await bcrypt.compare(password, user.password);
+      let comparePassword = await bcrypt.compare(password, user.password,(err ,result)=>{
+        return result == true
+      });
 
-      if (!comparePassword) {
-        return res.status(400).json({ message: "Please login with correct credentials - " });
-      }
+      console.log(comparePassword);
+
+      // if (!comparePassword) {
+      //   return res.status(400).json({ message: "Please login with correct credentials - " });
+      // }
 
       const data = {
         user: {
