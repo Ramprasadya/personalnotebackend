@@ -4,6 +4,7 @@ const { body, validationResult } = require("express-validator");
 const router = express.Router();
 const bcrypt = require('bcrypt');
 var jwt = require('jsonwebtoken');
+const fetchuser = require("../middleware/fetchuser");
 
 const JWT_SECRET = "iamlearningbackend"
 
@@ -77,7 +78,7 @@ router.post(
       }
 
       let comparePassword = await bcrypt.compare(password, user.password);
-  console.log(comparePassword)
+  // console.log(comparePassword)
       if (!comparePassword) {
         return res.status(400).json({ message: "Please login with correct credentials - " });
       }else{
@@ -99,5 +100,19 @@ router.post(
     }
   }
 );
+
+// Find user Details ;
+
+router.post("/getuser",fetchuser,async(req,res)=>{
+ try {
+  let userId = req.user.id;
+//  res.send(userId)
+ let loginInfo = await User.findById(userId)
+ res.send(loginInfo)
+ } catch (error) {
+  console.log({error:error})
+  res.status(500).send("Internal server error");
+ }
+})
 
 module.exports = router;
