@@ -37,6 +37,15 @@ router.post("/addnotes",fetchuser,[
 
 })
 
+// Updatingn the note 
+
+router.patch("/updatenotes",fetchuser,[
+    body("title","Enter a valid email").isLength({min:3}),
+    body("desc","Enter at least 4 number ").isLength({ min: 5 }), 
+],(req,res)=>{
+ 
+})
+
 
 
 module.exports = router ;
