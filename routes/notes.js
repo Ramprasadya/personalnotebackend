@@ -39,11 +39,29 @@ router.post("/addnotes",fetchuser,[
 
 // Updatingn the note 
 
-router.patch("/updatenotes",fetchuser,[
+router.put("/updatenotes/:id",fetchuser,[
     body("title","Enter a valid email").isLength({min:3}),
     body("desc","Enter at least 4 number ").isLength({ min: 5 }), 
-],(req,res)=>{
- 
+],async(req,res)=>{
+ const  {title,desc,tag} = req.body;
+ let newNote = {};
+ if(title){newNote.title = title};
+ if(desc){newNote.desc = desc};
+ if(tag){newNote.tag = tag};
+
+ let note = await Notes.findById(req.params.id)
+//  console.log(note)
+ if(!note){
+    return res.status(404).send("not found ")
+ }
+ if(note.user.toString() !== req.user.id ){
+    return res.status(401).send("Not Allow")
+ }
+
+ note = await Notes.findByIdAndUpdate(req.params.id , {$set: newNote},{new: true})
+
+ res.json({note});
+
 })
 
 
