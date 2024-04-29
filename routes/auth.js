@@ -17,15 +17,16 @@ router.post(
     body("password","Enter at least 4 number ").isLength({ min: 4 }),
   ],
   async(req, res) => {
+    let success = false ;
     const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
+    return res.status(400).json({ success , errors: errors.array() });
   }
   try{
      let user =  await User.findOne({email:req.body.email});
     // console.log(user)
   if(user){
-    return  res.status(400).json({message:"This email is already exist"})
+    return  res.status(400).json({ success , message:"This email is already exist"})
   }
 //    password hashing  ........
     const salt = await bcrypt.genSalt(10)
@@ -42,8 +43,9 @@ router.post(
         }
      }
      const authToken = jwt.sign(data,JWT_SECRET)
+     success = true ;
     //  console.log(authToken)
-     res.json({authToken});
+     res.json({success ,authToken});
   
   }catch(err){
    console.log(err);
@@ -64,9 +66,10 @@ router.post(
     body("password", "Password can not be blank").exists(),
   ],
   async(req, res) => {
+    let success = false
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json({ success , errors: errors.array() });
     }
 
     const { email, password } = req.body;
@@ -74,7 +77,7 @@ router.post(
       let user = await User.findOne({ email });
       
       if (!user) {
-        return res.status(400).json({ message: "Please login with correct credentials" });
+        return res.status(400).json({ success , message: "Please login with correct credentials" });
       }
 
       let comparePassword = await bcrypt.compare(password, user.password);
@@ -89,7 +92,8 @@ router.post(
         };
   
         const authToken = jwt.sign(data, JWT_SECRET);
-        res.json({ authToken });
+        success = true ;
+        res.json({success , authToken });
       }
 
       
